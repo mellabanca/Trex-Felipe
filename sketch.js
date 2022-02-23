@@ -2,10 +2,12 @@ var player, playerAnim;
 var borda;
 var chao, chaoSpr;
 var chaoInv;
+var nuvem, nuvemSpr;
 
 function preload(){
     playerAnim = loadAnimation("./Imagens/trex1.png","./Imagens/trex3.png", "./Imagens/trex4.png");
     chaoSpr = loadImage("./Imagens/ground2.png");
+    nuvemSpr = loadImage("./Imagens/cloud.png");
 }
 
 function setup(){
@@ -42,5 +44,13 @@ function draw(){
 }
 
 function nuvens(){
-
+    if(frameCount % 60 === 0){
+        nuvem = createSprite(600,100,40,10);
+        nuvem.addImage(nuvemSpr);
+        nuvem.velocityX = -3;
+        nuvem.y = Math.round(random(1,150));
+        nuvem.lifetime = 250;
+        nuvem.depth = player.depth;
+        player.depth += 1;    
+    }
 }
