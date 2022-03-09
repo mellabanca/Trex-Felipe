@@ -40,33 +40,50 @@ function setup(){
     grupoObstaculos = new Group();
     //var numero = Math.round(random(1,100));
     //console.log(numero);
+    player.setCollider("circle",0,0,40)
+    player.debug = false;
 }
 
 function draw(){
     background("white");
     //console.log(frameCount);
     //console.log(player.y);
+    console.log(estado);
 
     if(estado === JOGANDO){
         chao.velocityX = -2;
+
+        if(chao.x < 0){
+            chao.x = chao.width/2;
+        }
+
+        if(keyDown("space")&&player.y >= 150){
+            player.velocityY = -10;
+        }
+
+        player.velocityY += 1;
+
+        pontuacao += Math.round(frameCount/60);
+
+        nuvens();
+        obstaculos();
+        
+        if (grupoObstaculos.isTouching(player)){
+            estado = ACABOU;
+        }
+
+
     } else if (estado === ACABOU){
         chao.velocityX = 0;
+        grupoNuvens.setVelocityXEach(0);
+        grupoObstaculos.setVelocityXEach(0);
+
     }
 
     
-    if(chao.x < 0){
-        chao.x = chao.width/2;
-    }
-    if(keyDown("space")&&player.y >= 150){
-    player.velocityY = -10;
-    }
-    player.velocityY += 1;
     player.collide(chaoInv);
-    nuvens();
-    obstaculos();
     drawSprites()
     text(pontuacao,500,50);
-    pontuacao += Math.round(frameCount/60);
 }
 
 function nuvens(){
