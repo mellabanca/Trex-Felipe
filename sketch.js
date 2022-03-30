@@ -14,6 +14,13 @@ var estado = JOGANDO;
 var gameOverSpr,gameOverImg;
 var restartSpr,restartImg;
 
+//Sons
+var checkPoint;
+var death;
+var jump;
+
+var mensagem = "Isso é uma mensagem";
+
 
 function preload(){
     playerAnim = loadAnimation("./Imagens/trex1.png","./Imagens/trex3.png", "./Imagens/trex4.png");
@@ -33,6 +40,10 @@ function preload(){
 
     gameOverImg = loadImage("./Imagens/gameOver.png");
     restartImg = loadImage("./Imagens/restart.png");
+
+    checkPoint = loadSound("./Sons/checkPoint.mp3");
+    death = loadSound("./Sons/die.mp3")
+    jump = loadSound("./Sons/jump.mp3");
 }
 
 function setup(){
@@ -67,23 +78,26 @@ function setup(){
 
     player.setCollider("circle",0,0,40)
     player.debug = false;
+    
 }
 
 function draw(){
     background("white");
     //console.log(frameCount);
     //console.log(player.y);
-    console.log(estado);
+    //console.log(estado);
+    //console.log(mensagem);
 
     if(estado === JOGANDO){
-        chao.velocityX = -2;
+        chao.velocityX = -(4+pontuacao / 100);
 
         if(chao.x < 0){
             chao.x = chao.width/2;
         }
 
         if(keyDown("space")&&player.y >= 150){
-            player.velocityY = -10;
+            player.velocityY = -12;
+            jump.play();
         }
 
         player.velocityY += 1;
@@ -94,6 +108,7 @@ function draw(){
         
         if (grupoObstaculos.isTouching(player)){
             estado = ACABOU;
+            death.play();
         }
 
         pontuacao += Math.round(frameCount/60);
@@ -102,6 +117,10 @@ function draw(){
         restartSpr.visible = false;
         gameOverSpr.visible = false;
 
+        if(pontuacao % 100 === 0 && pontuacao > 0){
+            checkPoint.play();
+            checkPoint.setVolume(0.1);
+        }
 
     } else if (estado === ACABOU){
         chao.velocityX = 0;
@@ -116,10 +135,17 @@ function draw(){
 
     }
 
+    if(mousePressedOver(restartSpr)){
+        gameReset();
+    }
     
     player.collide(chaoInv);
     drawSprites()
     text(pontuacao,500,50);
+}
+
+function gameReset(){
+    
 }
 
 function nuvens(){
@@ -139,7 +165,7 @@ function nuvens(){
 function obstaculos(){
     if(frameCount % 60 === 0){
         var obs = createSprite(600,165,10,40);
-        obs.velocityX = -6;
+        obs.velocityX = -(6+pontuacao / 100);
         var numeroAlt = Math.round(random(1,6));
         switch(numeroAlt){
             case 1: obs.addImage(obs1);
