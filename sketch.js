@@ -47,8 +47,8 @@ function preload(){
 }
 
 function setup(){
-    createCanvas(600,200)
-    player = createSprite(50, 160, 20, 50);
+    createCanvas(windowWidth,windowHeight);
+    player = createSprite(50, height-70, 20, 50);
     player.addAnimation("correndo",playerAnim);
     player.addAnimation("morto", playerDeath);
     player.frameDelay = 4;
@@ -56,15 +56,15 @@ function setup(){
 
     borda = createEdgeSprites();
 
-    chao = createSprite(200,180,400,20);
+    chao = createSprite(width/2,height-80,width,125);
     chao.addImage("chao",chaoSpr);
     chao.x = chao.width/2;
-    chaoInv = createSprite(200,190,400,10);
+    chaoInv = createSprite(width/2,height-10,width,125);
     chaoInv.visible = false;
 
-    gameOverSpr = createSprite(300,100);
+    gameOverSpr = createSprite(width/2,height/2-50);
     gameOverSpr.addImage(gameOverImg);
-    restartSpr = createSprite(300,145);
+    restartSpr = createSprite(width/2, height/2);
     restartSpr.addImage(restartImg);
     restartSpr.scale = 0.5;
 
@@ -95,9 +95,10 @@ function draw(){
             chao.x = chao.width/2;
         }
 
-        if(keyDown("space")&&player.y >= 150){
+        if(keyDown("space")&&player.y >= height-120 || touches.length > 0 && player.y >= height-120){
             player.velocityY = -12;
             jump.play();
+            touches = [];
         }
 
         player.velocityY += 1;
@@ -111,7 +112,7 @@ function draw(){
             death.play();
         }
 
-        pontuacao += Math.round(frameCount/60);
+        pontuacao += Math.round(frameRate()/60);
 
 
         restartSpr.visible = false;
@@ -132,31 +133,39 @@ function draw(){
         player.velocityY = 0;
         restartSpr.visible = true;
         gameOverSpr.visible = true;
-
-    }
-
-    if(mousePressedOver(restartSpr)){
-        gameReset();
+        
+        if(mousePressedOver(restartSpr) || touches.length > 0){
+            gameReset();
+            touches = [];
+        }
     }
     
     player.collide(chaoInv);
     drawSprites()
-    text(pontuacao,500,50);
+    text(pontuacao,50,height/2);
 }
 
 function gameReset(){
-    
+    estado = JOGANDO;
+    restartSpr.visible = false;
+    gameOverSpr.visible = false;
+    grupoNuvens.destroyEach();
+    grupoObstaculos.destroyEach();
+    player.changeAnimation("correndo",playerAnim);
+    pontuacao = 0;
 }
 
 function nuvens(){
     if(frameCount % 60 === 0){
-        nuvem = createSprite(600,100,40,10);
+        nuvem = createSprite(width+20,height-300,40,10);
         nuvem.addImage(nuvemSpr);
         nuvem.velocityX = -3;
-        nuvem.y = Math.round(random(1,150));
+        nuvem.y = Math.round(random(10,height/2));
         nuvem.lifetime = 250;
         nuvem.depth = player.depth;
-        player.depth += 1;   
+        player.depth += 1;
+        restartSpr.depth = player.depth;
+        restartSpr.depth += 1;
         grupoNuvens.add(nuvem); 
     }
 }
@@ -164,7 +173,7 @@ function nuvens(){
 
 function obstaculos(){
     if(frameCount % 60 === 0){
-        var obs = createSprite(600,165,10,40);
+        var obs = createSprite(width,height-95,10,40);
         obs.velocityX = -(6+pontuacao / 100);
         var numeroAlt = Math.round(random(1,6));
         switch(numeroAlt){
